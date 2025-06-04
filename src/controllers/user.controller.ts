@@ -9,9 +9,7 @@ export const getUsers = async (_req: Request, res: Response
     try {
         // Use lean() for better performance when you don't
         // need full mongoose documents
-        const users = await User.find()
-
-        .select('-password').lean()
+        const users = await User.find().lean()
         res.status(200).json(users)
     } catch (error) {
         handleError(res, error)
@@ -24,7 +22,7 @@ export const getUserById = async ( req: Request, res: Response
     try {
         const { id } = req.params
         if (!isValidObjectId(id, res)) return
-        const user = await User.findById(id).select('-password').lean()
+        const user = await User.findById(id).lean()
         if (!user) {
             res.status(400).json({ message: 'user not found' })
             return
@@ -50,7 +48,7 @@ export const createUser = async (
         }
 
         // Use findOne with projection for better performance
-        const existingUser = await User.findOne({ email }).select('_id').lean()
+        const existingUser = await User.findOne({ email }).lean()
         if (existingUser) {
             res.status(400).json({ message: 'User already exists' })
             return
@@ -84,8 +82,7 @@ export const createUser = async (
 
             // If email is being update, check for duplicates
             if (email) {
-                const emailExists = await User.findOne({email, _id: { $ne: id},})
-                .select('_id') .lean()
+                const emailExists = await User.findOne({email, _id: { $ne: id},}).lean()
                 if (emailExists) {
                     res.status(400).json({ message: 'Email already in use' })
                     return
@@ -94,8 +91,7 @@ export const createUser = async (
             const updatedUser = await User.findByIdAndUpdate(id, updatedata, {
                 new: true,
                 runvalidators: true,
-            })
-            .select('-password').lean()
+            }).lean()
             if (!updatedUser) {
                 res.status(404).json({ message: 'User not found' })
                 return
